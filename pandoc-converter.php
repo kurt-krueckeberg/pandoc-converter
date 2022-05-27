@@ -17,7 +17,7 @@ $start_dir = '/home/kurt/Documents/Germ201';
 
 $iter = new RecursiveIteratorIterator(  new RecursiveDirectoryIterator($start_dir) );
 
-$md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) { // Must be file of form 'curriculum.+\.md'
+$md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) { // File must be file of form 'curriculum.+\.md'
 
                                                       return ($info->isfile()  && (1 == preg_match("@curriculum.+\.md@i", $info->getfilename())) ) ? true : false;
                                                   });
@@ -40,16 +40,13 @@ $md2html = function(\SplFileInfo $info) use ($template_name) // Assign closure.
 };
 
 // Invoke pandoc one each curriculem markdown file
-foreach ($md_filter_iter as $info) { 
+foreach ($md_filter_iter as $info) $md2html($info);
 
-  $md2html($info);
-}
-// Return the newly-create .html files....
+// Returns only the newly-create .html files....
 $html_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) {
 
                                                       return $info->isfile()  && 'html' == $info->getExtension() ? true : false;
                                                   });
-
 /*
  If a table cell tag '<td .....>' is not immediately followed by a <p> tag, then the cell contents are enclosed within beginning and ending parapgraph tags.
  For example:
@@ -64,7 +61,6 @@ $html_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $in
  The regex assumes that the entire cell is in the $subject, it is on one line. The regex will fail if '</td>' is not on the line.
  However, table cells that are NOT followed by a <p> tag seems to fit on one line.
 */
-
 function add_p_tag(string $subject)
 {
   static $regex = '%^(<td(?>[^>]+)?>)(?!<p>)(.*)</td>%';
@@ -95,7 +91,7 @@ foreach($html_filter_iter as $file_info) {
 
      $output->fwrite($line . "\n"); 
    }
-
+   // Move file-name.new to file-name.html
    $cmd = "mv $out_fname " . $file_info->getBasename();
    system( $cmd ); 
 
