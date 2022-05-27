@@ -1,1 +1,3 @@
-Converts files from pandoc makrdown to .html and afterward fixes tables cells to always contain paragraphs.
+# Converter
+
+Converts files from pandoc markdown to .html and afterward fixes the html table's cells to consistently contain paragraphs.
