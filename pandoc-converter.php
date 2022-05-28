@@ -85,11 +85,9 @@ foreach($html_filter_iter as $file_info) {
 
    foreach($html as $line) {
 
-     if (str_starts_with($line, "<td")) 
+      if (str_starts_with($line, "<td")) $line = add_p_tag($line);
 
-         $line = add_p_tag($line);
-
-     $output->fwrite($line . "\n"); 
+      $output->fwrite($line . "\n"); 
    }
    // Move file-name.new to file-name.html
    $cmd = "mv $out_fname " . $file_info->getBasename();
