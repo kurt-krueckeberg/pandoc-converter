@@ -57,5 +57,5 @@ function fix_td_tags(string $base_name)
    $cmd = "mv $out_fname " . $html_name ;
    system( $cmd ); 
 
-   echo "Corrected table cells in " .  $html_name . "\n";
+   echo "$html_name created.\n";
 }
