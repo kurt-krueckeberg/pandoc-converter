@@ -12,21 +12,24 @@ class FileReader extends \SplFileObject {
      $this->setFlags(\SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY | \SplFileObject::DROP_NEW_LINE);
   }
 }
-
-$start_dir = '/home/kurt/Documents/Germ201';
+if ($argc != 3) 
+   echo "Enter the start folder, followed the regex the filenames must match.
+   
+$start_dir = argv[1];
 
 $iter = new RecursiveIteratorIterator(  new RecursiveDirectoryIterator($start_dir) );
 
+$regex = "@{$argv[2]}@i";
+
 $md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) { // File must be file of form 'curriculum.+\.md'
 
-                                                      return ($info->isfile()  && (1 == preg_match("@curriculum.+\.md@i", $info->getfilename())) ) ? true : false;
+                                                      return ($info->isfile()  && (1 == preg_match($regex, $info->getfilename())) ) ? true : false;
                                                   });
-/*
-  Create closure to call pandoc to convert .md to .html file using the template named below.
- */
+
+// Create closure to call pandoc to convert .md to .html file using the pandoc html template given below.
 $template_name = "/usr/local/bin/pandoc-dark-template";
 
-$md2html = function(\SplFileInfo $info) use ($template_name) // Assign closure.
+$md2html = function(\SplFileInfo $info) use ($template_name) 
 {
    $base_name = $info->getBasename(".md");
 
