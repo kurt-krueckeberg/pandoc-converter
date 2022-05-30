@@ -60,7 +60,7 @@ function fix_td_tags(string $base_name)
    echo "$html_name created.\n";
 }
 
-if ($argc != 2) {
+if ($argc < 2) {
    echo "Enter the start folder, optionally followed the regex the markdown file names must match.\n";
    return;
 }
