@@ -77,8 +77,6 @@ $file_name_regex = isset($argv[2]) ?  $argv[2] : '.*'; // Get regex
 
 $file_name_regex = "%$file_name_regex" . ".md%i";
 
-$start_dir = "/some_dir";
-
 $file_name_regex = "curriculum.*\.md"; // Example regex to match
 
 $file_name_regex = "%$file_name_regex" . ".md%i";
