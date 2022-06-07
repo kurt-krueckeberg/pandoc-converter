@@ -77,24 +77,19 @@ $file_name_regex = isset($argv[2]) ?  $argv[2] : '.*'; // Get regex
 
 $file_name_regex = "%$file_name_regex" . ".md%i";
 
-$file_name_regex = "curriculum.*\.md"; // Example regex to match
-
-$file_name_regex = "%$file_name_regex" . ".md%i";
-
 $iter = new RecursiveIteratorIterator(  new RecursiveDirectoryIterator($start_dir) );
 
 /*
- * The anonymous function ensure file name matches the regex 
+ * The anonymous function ensures the file name matches the file_name_regex 
 */
 $md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) use ($file_name_regex) { 
-
-                                                      return $info->isfile()  && (1 == preg_match($file_name_regex, $info->getfilename()) ) ? true : false;
+                                                        return $info->isfile()  && (1 == preg_match($file_name_regex, $info->getfilename()) ) ? true : false;
                                                   });
 
 /* 
- * Next we create a closure that (in this example code) calls
-  pandoc to convert the markdown files, .md, to .html file using the
-  pandoc html template below.
+ * Next we create a closure that calls pandoc to convert
+ * the markdown files .md files to .html files using the
+ * pandoc html template below.
  */
 $template_name = '/usr/local/bin/pandoc-dark-template';
 
@@ -111,8 +106,7 @@ $md2html = function(\SplFileInfo $info) use ($template_name)
    fix_td_tags($base_name);
 };
 
-
 /*
-  Finally, we invoke the cloosure for each file matching the regex.
+ * Finally, we invoke the cloosure $md2html on each file matching the regex.
  */
 foreach ($md_filter_iter as $info) $md2html($info);
