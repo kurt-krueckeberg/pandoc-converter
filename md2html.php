@@ -12,7 +12,9 @@ class FileReader extends \SplFileObject {
 }
 
 /*
- If a table cell tag '<td .....>' is not immediately followed by a <p> tag, then the cell contents are enclosed within beginning and ending parapgraph tags.
+ After pandoc converts the .md to .html, if a table cell tag like '<td .....>' is not immediately followed by a <p> tag,
+ then the cell contents are enclosed within beginning and ending parapgraph tags.
+
  For example:
 
     <td style="text-align: left;">die Frau</td>
@@ -22,20 +24,24 @@ class FileReader extends \SplFileObject {
     <td style="text-align: left;"><p>die Frau</p></td>
 
  Comment:
+
  The regex assumes that the entire cell is in the $subject, it is on one line. The regex will fail if '</td>' is not on the line.
  However, table cells that are NOT followed by a <p> tag seems to fit on one line.
 */
 function add_p_tag(string $subject)
 {
-  static $regex = '%^(<td(?>[^>]+)?>)(?!<p>)(.*)</td>%';
+  static $file_name_regex = '%^(<td(?>[^>]+)?>)(?!<p>)(.*)</td>%';
 
   static $replace = '$1<p>$2</p></td>';
   
-  $result = preg_replace($regex, $replace, $subject);
+  $result = preg_replace($file_name_regex, $replace, $subject);
 
   return $result;
 }
 
+/*
+ * Calls add_a_tag() if a line starts with "<td"l
+ */
 function fix_td_tags(string $base_name)
 {
    $html_name = $base_name . '.html';
@@ -65,20 +71,33 @@ if ($argc < 2) {
    return;
 }
    
-$start_dir = $argv[1];
+$start_dir = $argv[1]; // Get start dir 
 
-$regex = isset($argv[2]) ?  $argv[2] : '.*';
+$file_name_regex = isset($argv[2]) ?  $argv[2] : '.*'; // Get regex
 
-$regex = "%$regex" . ".md%i";
+$file_name_regex = "%$file_name_regex" . ".md%i";
+
+$start_dir = "/some_dir";
+
+$file_name_regex = "curriculum.*\.md"; // Example regex to match
+
+$file_name_regex = "%$file_name_regex" . ".md%i";
 
 $iter = new RecursiveIteratorIterator(  new RecursiveDirectoryIterator($start_dir) );
 
-$md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) use ($regex) { 
+/*
+ * The anonymous function ensure file name matches the regex 
+*/
+$md_filter_iter = new \CallbackFilterIterator($iter, function(\SplFileInfo $info) use ($file_name_regex) { 
 
-                                                      return $info->isfile()  && (1 == preg_match($regex, $info->getfilename()) ) ? true : false;
+                                                      return $info->isfile()  && (1 == preg_match($file_name_regex, $info->getfilename()) ) ? true : false;
                                                   });
 
-// Create closure to call pandoc to convert .md to .html file using the pandoc html template given below.
+/* 
+ * Next we create a closure that (in this example code) calls
+  pandoc to convert the markdown files, .md, to .html file using the
+  pandoc html template below.
+ */
 $template_name = '/usr/local/bin/pandoc-dark-template';
 
 $md2html = function(\SplFileInfo $info) use ($template_name) 
@@ -94,5 +113,8 @@ $md2html = function(\SplFileInfo $info) use ($template_name)
    fix_td_tags($base_name);
 };
 
-// Invoke pandoc for each file matching the regex.
+
+/*
+  Finally, we invoke the cloosure for each file matching the regex.
+ */
 foreach ($md_filter_iter as $info) $md2html($info);
