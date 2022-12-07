@@ -33,8 +33,25 @@ function remove_p_tag(string $subject)
   return $result;
 }
 
+$functor = function (string $file) {
+ 
+ $in  = new FileReader($file . ".html");
+
+   $out = new File($file . ".new", "w");
+
+   foreach($in as $line) {
+
+     if (str_starts_with($line, "<td")) 
+
+         $line = remove_p_tag($line);
+
+     $out->fwrite($line . "\n"); 
+   } 
+};
+
 $files = array("curriculum-unit1", "curriculum-unit2", "curriculum-unit3", "curriculum-unit4", "curriculum-unit5");
 
+ /*
 foreach($files as $file) {
 
    $in  = new FileReader($file . ".html");
@@ -50,3 +67,6 @@ foreach($files as $file) {
      $out->fwrite($line . "\n"); 
    }
 }
+*/
+
+foreach($files as $file) functor($file);
